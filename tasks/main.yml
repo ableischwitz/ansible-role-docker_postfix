@@ -1,0 +1,50 @@
+---
+# tasks file for ansible-role-docker_postfix
+- name: prepare pre services environment
+  template:
+    src: run.config.j2
+    dest: "{{ postfix_persistent_storage }}/run.config"
+    mode: 0755
+
+- name: create persistent-directories
+  file:
+    path: "{{ item.path }}"
+    state: directory
+    recurse: yes
+    mode: 0755
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+  with_items:
+    - { path: "{{ postfix_persistent_storage }}", owner: 'root', group: 'root' }
+    - { path: "{{ postfix_persistent_storage }}/logs", owner: 'root', group: 'root' }
+    - { path: "{{ postfix_persistent_storage }}/spool", owner: 'postfix', group: 'postfix' }
+
+- name: prepare pre postfix environment
+  template:
+    src: run.initialization.j2
+    dest: "{{ postfix_persistent_storage }}/run.initialization"
+    mode: 0755
+
+- name: Restart a container
+  docker_container:
+    name: dc_postfix
+    # https://hub.docker.com/r/tozd/postfix/
+    image: tozd/postfix
+    log_driver: journald
+    state: started
+    restart: yes
+    privileged: yes
+    networks:
+      - name: "{{ postfix_docker_network }}"
+    ports:
+      - "25:25"
+    env:
+      MAILNAME: "{{ postfix_mailname }}"
+      MY_NETWORKS: "{{ postfix_my_networks }}"
+      MY_DESTINATION: "{{ postfix_my_destination }}"
+      ROOT_ALIAS: "{{ postfix_root_alias }}"
+    volumes:
+      - "{{ postfix_persistent_storage }}/spool:/var/spool/postfix:rw"
+      - "{{ postfix_persistent_storage }}/logs:/var/log/postfix:rw"
+      - "{{ postfix_persistent_storage }}/run.config:/etc/service/postfix/run.config:rw"
+      - "{{ postfix_persistent_storage }}/run.initialization:/etc/service/postfix/run.initialization:rw"

@@ -1,7 +1,7 @@
 Role Name
 =========
 
-A brief description of the role goes here.
+This role handles the deployment and start of a dockerized postfix instance.
 
 Requirements
 ------------
@@ -11,7 +11,22 @@ Any pre-requisites that may not be covered by Ansible itself or the role should 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+# provide network for inter-container messaging
+postfix_docker_network: isolated_nw
+
+# define storage-path for persistent storage, used for spool, logs and configuration-scripts
+postfix_persistent_storage: "{{ global_persistend_storage }}/postfix"
+
+# define mail-name. This should be FQDN
+postfix_mailname: smtp.example.com
+
+# Postfix base-configuration, even more details can be applied by using the template-files.
+# ToDo: fix detection of docker-network
+# Don't know if that is usable prior start of a container, but that is returned - somewhat.
+# {{ postfix_docker_network }}.<whatever_stands_for_network>/{{ postfix_docker_network }}.IPPrefixLen
+postfix_my_networks: "{{ ansible_docker0.ipv4.network }}/24 127.0.0.8/8"
+postfix_my_destination: "localhost.localdomain, localhost, example.com"
+postfix_root_alias: root@otherhost
 
 Dependencies
 ------------
@@ -25,14 +40,13 @@ Including an example of how to use your role (for instance, with variables passe
 
     - hosts: servers
       roles:
-         - { role: username.rolename, x: 42 }
+         - { role: ansible-role-docker_postfix, tags: ['postfix'] }
 
 License
 -------
 
-BSD
+GPLv3
 
 Author Information
 ------------------
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
