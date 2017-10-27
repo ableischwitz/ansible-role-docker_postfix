@@ -16,8 +16,8 @@
     group: "{{ item.group }}"
   with_items:
     - { path: "{{ postfix_persistent_storage }}", owner: 'root', group: 'root' }
-    - { path: "{{ postfix_persistent_storage }}/logs", owner: 'root', group: 'root' }
-    - { path: "{{ postfix_persistent_storage }}/spool", owner: 'postfix', group: 'postfix' }
+    - { path: "{{ postfix_persistent_storage }}/logs", owner: 101, group: 104 }
+    - { path: "{{ postfix_persistent_storage }}/spool", owner: 102, group: 106 }
 
 - name: prepare pre postfix environment
   template:
