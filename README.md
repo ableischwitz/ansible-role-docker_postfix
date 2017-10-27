@@ -11,22 +11,22 @@ Any pre-requisites that may not be covered by Ansible itself or the role should 
 Role Variables
 --------------
 
-# provide network for inter-container messaging
-postfix_docker_network: isolated_nw
+    # provide network for inter-container messaging
+    postfix_docker_network: isolated_nw
 
-# define storage-path for persistent storage, used for spool, logs and configuration-scripts
-postfix_persistent_storage: "{{ global_persistend_storage }}/postfix"
+    # define storage-path for persistent storage, used for spool, logs and configuration-scripts
+    postfix_persistent_storage: "{{ global_persistend_storage }}/postfix"
 
-# define mail-name. This should be FQDN
-postfix_mailname: smtp.example.com
+    # define mail-name. This should be FQDN
+    postfix_mailname: smtp.example.com
 
-# Postfix base-configuration, even more details can be applied by using the template-files.
-# ToDo: fix detection of docker-network
-# Don't know if that is usable prior start of a container, but that is returned - somewhat.
-# {{ postfix_docker_network }}.<whatever_stands_for_network>/{{ postfix_docker_network }}.IPPrefixLen
-postfix_my_networks: "{{ ansible_docker0.ipv4.network }}/24 127.0.0.8/8"
-postfix_my_destination: "localhost.localdomain, localhost, example.com"
-postfix_root_alias: root@otherhost
+    # Postfix base-configuration, even more details can be applied by using the template-files.
+    # ToDo: fix detection of docker-network
+    # Don't know if that is usable prior start of a container, but that is returned - somewhat.
+    # {{ postfix_docker_network }}.<whatever_stands_for_network>/{{ postfix_docker_network }}.IPPrefixLen
+    postfix_my_networks: "{{ ansible_docker0.ipv4.network }}/24 127.0.0.8/8"
+    postfix_my_destination: "localhost.localdomain, localhost, example.com"
+    postfix_root_alias: root@otherhost
 
 Dependencies
 ------------
